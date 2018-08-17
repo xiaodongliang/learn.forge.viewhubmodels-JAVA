@@ -3,11 +3,13 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import javax.xml.bind.DatatypeConverter;
 
 import org.codehaus.jettison.json.JSONObject;
+import org.joda.time.DateTime;
 import org.json.*;
 
 import com.autodesk.client.auth.Credentials;
@@ -18,6 +20,7 @@ import com.autodesk.client.ApiException;
 import com.autodesk.client.ApiResponse;
 import com.autodesk.client.api.*;
 import com.autodesk.client.model.*;
+import com.owlike.genson.annotation.JsonConverter;
 import com.sun.xml.bind.v2.schemagen.xmlschema.List;
 
 
@@ -47,9 +50,7 @@ public class datamanagement extends HttpServlet {
  			if(href.isEmpty()) {
  	 			resp.setStatus(500);   
  				return;
- 			}
- 			
- 			
+ 			} 
 	         
   			if(href.equals("#")) {
  	            getHubs(oauthClient, resp); 
@@ -64,10 +65,16 @@ public class datamanagement extends HttpServlet {
  					getProjects(resourceId,oauthClient,resp);
  					break;
  				case "projects":
+ 					String hubId = params[params.length - 3]; 
+ 					getFolders(hubId,resourceId,oauthClient,resp); 
  					break;
  				case "folders":
+ 					 String projectId = params[params.length - 3];
+                     getFolderContents(projectId, resourceId/*folder_id*/, oauthClient,resp); 
  					break;
  				case "items":
+ 					 projectId = params[params.length - 3];
+                     getVersions(projectId, resourceId/*item_id*/,  oauthClient,resp); 
  					break;
  				} 
  				
@@ -100,9 +107,17 @@ public class datamanagement extends HttpServlet {
 	 		
 	 		ArrayList<Hub> hubsArray = (ArrayList<Hub>) hubsResponse.getData().getData();
 	 		
-	 		PrintWriter out = resp.getWriter();
-	 		JSONArray jsonArray = new JSONArray();
+	 		//PrintWriter out = resp.getWriter();
+	 		//JSONArray jsonArray = new JSONArray();
 	        
+		 	resp.setContentType("application/json;charset=UTF-8");
+	        ServletOutputStream out = resp.getOutputStream();
+
+	        //JSONArray does not work, the response will be a string, instead of a Json array
+	        //workaround by send a stringfied json
+	        
+		 	String finalJsonStr = "[";
+		 			
 		 	for (int i = 0; i < hubsArray.size(); i++) {
 		 		Hub eachHub = hubsArray.get(i); 
 		 		String hubType = eachHub.getAttributes().getExtension().getType();
@@ -128,12 +143,18 @@ public class datamanagement extends HttpServlet {
 		        obj.put("text", name);  
 		        obj.put("type", hubTypeForTree);  
 		        obj.put("children", true);   
+		        
+		        finalJsonStr+= obj.toString();
+		        if(i<hubsArray.size() - 1)
+		        	finalJsonStr += ",";
 		         
-		        jsonArray.put(obj);
- 			} 		
-		 	resp.setContentType("application/json");
+		        //jsonArray.put(obj);
+  			} 		
+		 	finalJsonStr += "]";
 
-		 	out.print(jsonArray);
+		 	//out.print(jsonArray); 
+		 	out.print(finalJsonStr);
+	        
 		}
 		catch (Exception e) {
 				resp.setStatus(500); 
@@ -155,8 +176,13 @@ public class datamanagement extends HttpServlet {
 	 		
 	 		ArrayList<Project> projectsArray = (ArrayList<Project>) projectsResponse.getData().getData();
 	 		
-	 		PrintWriter out = resp.getWriter(); 
-	 		JSONArray jsonArray = new JSONArray();
+	 		//PrintWriter out = resp.getWriter(); 
+	 		//JSONArray jsonArray = new JSONArray();
+	 		
+
+		 	resp.setContentType("application/json;charset=UTF-8");
+	        ServletOutputStream out = resp.getOutputStream();
+		 	String finalJsonStr = "[";
 
 		 	for (int i = 0; i < projectsArray.size(); i++) {
 		 		Project eachProject = projectsArray.get(i); 
@@ -183,13 +209,197 @@ public class datamanagement extends HttpServlet {
 		        obj.put("type", projectTypeForTree);  
 		        obj.put("children", true);   
 		         
-		        jsonArray.put(obj);
+		        finalJsonStr+= obj.toString();
+		        if(i<projectsArray.size() - 1)
+		        	finalJsonStr += ",";
+		        //jsonArray.put(obj); 
  			} 		
-		 	out.print(jsonArray);
+ 
+		 	finalJsonStr += "]";
+
+		 	//out.print(jsonArray); 
+		 	out.print(finalJsonStr);
 		}
 		catch (Exception e) {
 				resp.setStatus(500); 
 		}   
  		 
 	}
+	
+void getFolders(String hubId,String projectId,oauth oauthClient, HttpServletResponse resp) {
+		
+		try {
+			 
+			ProjectsApi projects = new ProjectsApi();
+	 		ThreeLeggedCredentials threeCre = oauthClient.getCredentialsInternal(); 
+	
+	 		ApiResponse<Folders> topfoldersResponse = 
+	 				projects.getProjectTopFolders(hubId,projectId,
+	 				oauthClient.OAuthClient(null), threeCre);
+	 		
+ 	 		ArrayList<Folder> foldersArray = (ArrayList<Folder>) topfoldersResponse.getData().getData();
+	 		
+	 		//PrintWriter out = resp.getWriter(); 
+	 		//JSONArray jsonArray = new JSONArray();
+	 		
+
+		 	resp.setContentType("application/json;charset=UTF-8");
+	        ServletOutputStream out = resp.getOutputStream();
+		 	String finalJsonStr = "[";
+
+		 	for (int i = 0; i < foldersArray.size(); i++) {
+		 		Folder eachFolder = foldersArray.get(i); 
+		 		 
+		 		
+		 		String href = eachFolder.getLinks().getSelf().getHref(); 
+		 		String name = eachFolder.getAttributes().getDisplayName()==null?
+		 				eachFolder.getAttributes().getName():eachFolder.getAttributes().getDisplayName();
+				//String folderType = eachFolder.getAttributes().getExtension().getType();
+		 		String folderType = "folders";
+ 		 		
+ 		        JSONObject obj = new JSONObject();
+		        
+ 
+		        obj.put("id", href);  
+		        obj.put("text", name);  
+		        obj.put("type", folderType);  
+		        obj.put("children", true);   
+		         
+		        finalJsonStr+= obj.toString();
+		        if(i<foldersArray.size() - 1)
+		        	finalJsonStr += ",";
+		        //jsonArray.put(obj); 
+ 			} 		
+ 
+		 	finalJsonStr += "]";
+
+		 	//out.print(jsonArray); 
+		 	out.print(finalJsonStr);
+		}
+		catch (Exception e) {
+				resp.setStatus(500); 
+		}   
+ 		 
+	}
+	
+	void getFolderContents(String projectId,String folderId,oauth oauthClient, HttpServletResponse resp) {
+		
+		try {
+			 
+			FoldersApi folderApi = new FoldersApi();
+	 		ThreeLeggedCredentials threeCre = oauthClient.getCredentialsInternal(); 
+	
+	 		ApiResponse<JsonApiCollection> topfoldersResponse = 
+	 				folderApi.getFolderContents(projectId, folderId,
+	 						new ArrayList<String>(){},new ArrayList<String>(){},new ArrayList<String>(){}, 
+	 				null, null, oauthClient.OAuthClient(null), threeCre);
+	 		
+ 	 		ArrayList<JsonApiResource> contentsArray = (ArrayList<JsonApiResource>) topfoldersResponse.getData().getData();
+	 		
+	 		//PrintWriter out = resp.getWriter(); 
+	 		//JSONArray jsonArray = new JSONArray();
+	 		
+
+		 	resp.setContentType("application/json;charset=UTF-8");
+	        ServletOutputStream out = resp.getOutputStream();
+		 	String finalJsonStr = "[";
+
+		 	for (int i = 0; i < contentsArray.size(); i++) {
+		 		JsonApiResource eachContent = contentsArray.get(i); 
+		 		 
+		 		
+		 		String href = eachContent.getLinks().getSelf().getHref(); 
+		 		String name = eachContent.getAttributes().getDisplayName()==null?
+		 				eachContent.getAttributes().getName():eachContent.getAttributes().getDisplayName();
+				//String folderType = eachFolder.getAttributes().getExtension().getType();
+		 		String contentType = "items";
+ 		 		
+ 		        JSONObject obj = new JSONObject();
+		        
+ 
+		        obj.put("id", href);  
+		        obj.put("text", name);  
+		        obj.put("type", contentType);  
+		        obj.put("children", true);   
+		         
+		        finalJsonStr+= obj.toString();
+		        if(i<contentsArray.size() - 1)
+		        	finalJsonStr += ",";
+		        //jsonArray.put(obj); 
+ 			} 		
+ 
+		 	finalJsonStr += "]";
+
+		 	//out.print(jsonArray); 
+		 	out.print(finalJsonStr);
+		}
+		catch (Exception e) {
+				resp.setStatus(500); 
+		}   
+ 		 
+	}
+	
+	void getVersions(String projectId,String itemId,oauth oauthClient, HttpServletResponse resp) {
+		
+		try {
+			 
+			ItemsApi itemApi = new ItemsApi();
+	 		ThreeLeggedCredentials threeCre = oauthClient.getCredentialsInternal(); 
+	
+	 		ApiResponse<Versions> versionsResponse = 
+	 				itemApi.getItemVersions(projectId, itemId, null, null, null, null, null, null,
+	 						oauthClient.OAuthClient(null), threeCre );  
+	 		
+ 	 		ArrayList<Version> versionsArray = (ArrayList<Version>) versionsResponse.getData().getData();
+	 		
+	 		//PrintWriter out = resp.getWriter(); 
+	 		//JSONArray jsonArray = new JSONArray();
+	 		
+
+		 	resp.setContentType("application/json;charset=UTF-8");
+	        ServletOutputStream out = resp.getOutputStream();
+		 	String finalJsonStr = "[";
+
+		 	for (int i = 0; i < versionsArray.size(); i++) {
+		 		
+		 		Version version = versionsArray.get(i); 
+		 		 
+		 		
+		 		String dateFormated = new DateTime(version.getAttributes().getLastModifiedTime()).toLocalDateTime().toString();
+ 	            String[] params = version.getId().split("\\?");
+	            String versionst = params[params.length - 1];
+ 				
+	            String viewerUrn = (version.getRelationships() != null && 
+	            		version.getRelationships().getDerivatives() != null ?
+	            				version.getRelationships().getDerivatives().getData().getId() : null);
+	            
+	 			String name = URLDecoder.decode("v" + versionst + ":" 
+	 			+ dateFormated + " by " + version.getAttributes().getLastModifiedUserName(), "UTF-8"); 
+
+ 		 		
+ 		        JSONObject obj = new JSONObject(); 
+ 
+		        obj.put("id", viewerUrn);  
+		        obj.put("text", name);  
+		        obj.put("type",  (viewerUrn != null ? "versions" : "unsupported"));  
+		        obj.put("children", false);   
+		         
+		        finalJsonStr+= obj.toString();
+		        if(i<versionsArray.size() - 1)
+		        	finalJsonStr += ",";
+		        //jsonArray.put(obj); 
+ 			} 		
+ 
+		 	finalJsonStr += "]";
+
+		 	//out.print(jsonArray); 
+		 	out.print(finalJsonStr);
+		}
+		catch (Exception e) {
+				resp.setStatus(500); 
+		}   
+ 		 
+	}
+	
+	
 }

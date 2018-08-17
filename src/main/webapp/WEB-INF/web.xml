@@ -45,4 +45,14 @@
         <url-pattern>/api/forge/datamanagement</url-pattern>
     </servlet-mapping>
     
+     <servlet>
+        <servlet-name>user</servlet-name>
+        <servlet-class>user</servlet-class>
+    </servlet> 
+    
+     <servlet-mapping>
+        <servlet-name>user</servlet-name>
+        <url-pattern>/api/forge/user/profile</url-pattern>
+    </servlet-mapping>
+    
 </web-app>

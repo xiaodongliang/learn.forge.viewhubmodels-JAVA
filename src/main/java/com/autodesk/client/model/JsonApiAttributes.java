@@ -27,7 +27,10 @@ package com.autodesk.client.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -36,6 +39,41 @@ import io.swagger.annotations.ApiModel;
 @ApiModel(description = "resource specific attributes/properties")
 
 public class JsonApiAttributes   {
+	
+	  @JsonProperty("displayName")
+	  private String displayName = null; 
+	  
+	  
+	 /**
+	   * displayable name of the item
+	   * @return displayName
+	  **/
+	  @ApiModelProperty(example = "null", required = true, value = "displayable name of the item")
+	  public String getDisplayName() {
+	    return displayName;
+	  }
+
+	  public void setDisplayName(String displayName) {
+	    this.displayName = displayName;
+	  }
+	  
+	  @JsonProperty("name")
+	  private String name = null;
+	
+	 /**
+	   *  name of the item
+	   * @return name
+	  **/
+	  @ApiModelProperty(example = "null", required = true, value = "displayable name of the item")
+	  public String getName() {
+	    return name;
+	  }
+
+	  public void setName(String name) {
+	    this.displayName = name;
+	  }
+	  
+	  
 
   @Override
   public boolean equals(java.lang.Object o) {

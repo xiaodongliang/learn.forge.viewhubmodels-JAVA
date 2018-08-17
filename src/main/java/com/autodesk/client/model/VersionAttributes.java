@@ -169,11 +169,38 @@ public class VersionAttributes   {
   public void setFileType(String fileType) {
     this.fileType = fileType;
   }
+  
+  /**
+   * last modified time
+   * @return String
+  **/
+  @ApiModelProperty(example = "null", value = "last modified time")
+  public String getLastModifiedTime() {
+    return lastModifiedTime;
+  }
+
+  public void setLastModifiedTime(String v) {
+    this.lastModifiedTime = v;
+  }
 
   public VersionAttributes storageSize(Long storageSize) {
     this.storageSize = storageSize;
     return this;
   }
+  
+  /**
+   * last modified u
+   * @return String
+  **/
+  @ApiModelProperty(example = "null", value = "last modified time")
+  public String getLastModifiedUserName() {
+    return lastModifiedUserName;
+  }
+
+  public void setLastModifiedUserName(String v) {
+    this.lastModifiedUserName = v;
+  } 
+   
 
    /**
    * file size in bytes, only present if this version represents a file

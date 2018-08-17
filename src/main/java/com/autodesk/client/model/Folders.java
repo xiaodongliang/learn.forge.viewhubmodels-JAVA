@@ -27,59 +27,62 @@ package com.autodesk.client.model;
 
 import java.util.Objects;
 
-import com.autodesk.client.model.JobPayloadInput;
-import com.autodesk.client.model.JobPayloadOutput;
+import com.autodesk.client.model.JsonApiCollection;
+import com.autodesk.client.model.JsonApiVersionJsonapi;
+import com.autodesk.client.model.Project;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
- * JobPayload
+ * Folders
  */
 
-public class JobPayload   {
-  @JsonProperty("input")
-  private JobPayloadInput input = null;
+public class Folders   {
+  @JsonProperty("jsonapi")
+  private JsonApiVersionJsonapi jsonapi = null;
 
-  @JsonProperty("output")
-  private JobPayloadOutput output = null;
+  @JsonProperty("data")
+  private List<Folder> data = new ArrayList<Folder>();
 
-  public JobPayload input(JobPayloadInput input) {
-    this.input = input;
+  public Folders jsonapi(JsonApiVersionJsonapi jsonapi) {
+    this.jsonapi = jsonapi;
     return this;
   }
 
    /**
-   * Get input
-   * @return input
+   * Get jsonapi
+   * @return jsonapi
   **/
   @ApiModelProperty(example = "null", value = "")
-  public JobPayloadInput getInput() {
-    return input;
+  public JsonApiVersionJsonapi getJsonapi() {
+    return jsonapi;
   }
 
-  public void setInput(JobPayloadInput input) {
-    this.input = input;
+  public void setJsonapi(JsonApiVersionJsonapi jsonapi) {
+    this.jsonapi = jsonapi;
   }
 
-  public JobPayload output(JobPayloadOutput output) {
-    this.output = output;
+  public Folders data(List<Folder> data) {
+    this.data = data;
     return this;
   }
 
    /**
-   * Get output
-   * @return output
+   * Get data
+   * @return data
   **/
-  @ApiModelProperty(example = "null", value = "")
-  public JobPayloadOutput getOutput() {
-    return output;
+  @ApiModelProperty(example = "null", required = true, value = "")
+  public List<Folder> getData() {
+    return data;
   }
 
-  public void setOutput(JobPayloadOutput output) {
-    this.output = output;
+  public void setData(List<Folder> data) {
+    this.data = data;
   }
 
 
@@ -91,23 +94,23 @@ public class JobPayload   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    JobPayload jobPayload = (JobPayload) o;
-    return Objects.equals(this.input, jobPayload.input) &&
-        Objects.equals(this.output, jobPayload.output);
+    Folders folders = (Folders) o;
+    return Objects.equals(this.jsonapi, folders.jsonapi) &&
+        Objects.equals(this.data, folders.data);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(input, output);
+    return Objects.hash(jsonapi, data);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class JobPayload {\n");
+    sb.append("class Projects {\n");
     
-    sb.append("    input: ").append(toIndentedString(input)).append("\n");
-    sb.append("    output: ").append(toIndentedString(output)).append("\n");
+    sb.append("    jsonapi: ").append(toIndentedString(jsonapi)).append("\n");
+    sb.append("    data: ").append(toIndentedString(data)).append("\n");
     sb.append("}");
     return sb.toString();
   }

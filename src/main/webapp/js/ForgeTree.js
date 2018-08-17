@@ -70,8 +70,7 @@ function prepareUserHubsTree() {
           return { "id": node.id };
         },
         'success': function (nodes) {
-            
-          },
+            },
           "error": function (jqXHR, textStatus, errorThrown) {  } 
       }
     },

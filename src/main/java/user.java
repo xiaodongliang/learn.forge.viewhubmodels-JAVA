@@ -14,10 +14,10 @@ import com.autodesk.client.api.*;
 import com.autodesk.client.model.*;
 
 
-@WebServlet({ "/oAuthURL" })
-public class oAuthURL extends HttpServlet {
+@WebServlet({ "/user" })
+public class user extends HttpServlet {
 
-	public oAuthURL() {
+	public user() {
 	}
 
 	public void init() throws ServletException {
@@ -26,15 +26,12 @@ public class oAuthURL extends HttpServlet {
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		// return the oAuth URL 
-		String url =
-			    "https://developer.api.autodesk.com" +
-			    "/authentication/v1/authorize?response_type=code" +
-			    "&client_id=" + config.credentials.client_id +
-			    "&redirect_uri=" + config.credentials.callbackURL +
-			    "&scope=" + config.credentials.oAuthScope; 
-		PrintWriter out = resp.getWriter();
-		out.print(url); 
+		HttpSession session = req.getSession(); 
+ 		oauth oauthClient = new oauth(session);
+ 		
+ 		//UserProfileApi user = new UserProfileApi();
+ 		//working... UserProfileApi has not been implemented. 
+		 
 	} 
 
 	public void destroy() {

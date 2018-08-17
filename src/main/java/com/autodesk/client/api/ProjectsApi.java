@@ -311,4 +311,43 @@ public class ProjectsApi {
     GenericType<VersionCreated> localVarReturnType = new GenericType<VersionCreated>() {};
     return apiClient.invokeAPI(oauth2, credentials, localVarPath, "POST", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAccept, localVarContentType, localVarReturnType);
       }
+  
+  public ApiResponse<Folders> getProjectTopFolders(String hubId, String projectId, Authentication oauth2, Credentials credentials) throws ApiException, Exception {
+
+	    Object localVarPostBody = null;
+	    
+	    // verify the required parameter 'hubId' is set
+	    if (hubId == null) {
+	      throw new ApiException(400, "Missing the required parameter 'hubId' when calling getProjectTopFolders");
+	    }
+	    
+	    // verify the required parameter 'hubId' is set
+	    if (projectId == null) {
+	      throw new ApiException(400, "Missing the required parameter 'projectId' when calling getProjectTopFolders");
+	    }
+	    
+	    // create path and map variables 
+
+	    String localVarPath = "/project/v1/hubs/{hub_id}/projects/{project_id}/topFolders".replaceAll("\\{format\\}","json")
+	    	      .replaceAll("\\{" + "hub_id" + "\\}", apiClient.escapeString(hubId.toString()))
+	    	      .replaceAll("\\{" + "project_id" + "\\}", apiClient.escapeString(projectId.toString()));
+	    
+	    // query params
+	    List<Pair> localVarQueryParams = new ArrayList<Pair>();
+	    Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+	    Map<String, Object> localVarFormParams = new HashMap<String, Object>(); 
+	    
+	    final String[] localVarAccepts = {
+	      "application/vnd.api+json", "application/json"
+	    };
+	    final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+
+	    final String[] localVarContentTypes = {
+	      "application/vnd.api+json"
+	    };
+	    final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+
+	    GenericType<Folders> localVarReturnType = new GenericType<Folders>() {};
+	    return apiClient.invokeAPI(oauth2, credentials, localVarPath, "GET", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAccept, localVarContentType, localVarReturnType);
+	   }
 }

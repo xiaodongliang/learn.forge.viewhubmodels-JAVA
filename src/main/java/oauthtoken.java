@@ -3,6 +3,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -38,10 +39,15 @@ public class oauthtoken extends HttpServlet {
  			try {
  			String token  = 
  			credentials.getOAuthPublic();
- 			 PrintWriter out = resp.getWriter();
+ 			
+ 			resp.setContentType("application/json;charset=UTF-8");
+	        ServletOutputStream out = resp.getOutputStream();
+	        
  	        JSONObject obj = new JSONObject();
  	        obj.put("access_token", token);  
-            out.print(obj);
+ 	        obj.put("expires_in", "");  
+ 	        
+ 	       out.print(obj.toString());
  			
  			}catch (Exception e) {
  				resp.setStatus(500); 
